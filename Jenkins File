@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Build') {
             steps {
                 echo 'Stage 1: Build'
@@ -16,21 +17,21 @@ pipeline {
                 echo 'Task: Run unit and integration tests.'
                 echo 'Tool: JUnit'
             }
-            post {
-                always {
-                    emailext(
-                        subject: "Test Stage ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                        Test stage completed.
+        }
 
-                        Status: ${currentBuild.currentResult}
-                        Job: ${env.JOB_NAME}
-                        Build Number: ${env.BUILD_NUMBER}
-                        Build URL: ${env.BUILD_URL}
-                        """,
-                        to: 'colladorailey@gmail.com',
-                        attachLog: true
-                    )
+        stage('SonarCloud Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+
+                    bat """
+                    echo Running SonarCloud Analysis
+
+                    sonar-scanner ^
+                    -Dsonar.projectKey=RaiZed1031_8.2CDevSecOps ^
+                    -Dsonar.organization=RaiZed1031 ^
+                    -Dsonar.host.url=https://sonarcloud.io ^
+                    -Dsonar.token=%SONAR_TOKEN%
+                    """
                 }
             }
         }
@@ -38,40 +39,23 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Stage 3: Code Analysis'
-                echo 'Task: Analyse code quality.'
-                echo 'Tool: SonarQube'
+                echo 'Task: Analyse code quality and check industry standards.'
+                echo 'Tool: SonarCloud'
             }
         }
 
         stage('Security Scan') {
             steps {
                 echo 'Stage 4: Security Scan'
-                echo 'Task: Scan the code for vulnerabilities.'
-                echo 'Tool: OWASP Dependency-Check'
-            }
-            post {
-                always {
-                    emailext(
-                        subject: "Security Scan ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                        Security scan stage completed.
-
-                        Status: ${currentBuild.currentResult}
-                        Job: ${env.JOB_NAME}
-                        Build Number: ${env.BUILD_NUMBER}
-                        Build URL: ${env.BUILD_URL}
-                        """,
-                        to: 'colladorailey@gmail.com',
-                        attachLog: true
-                    )
-                }
+                echo 'Task: Scan the code to identify vulnerabilities.'
+                echo 'Tool: SonarCloud Security Hotspots'
             }
         }
 
         stage('Deploy to Staging') {
             steps {
                 echo 'Stage 5: Deploy to Staging'
-                echo 'Task: Deploy application to staging server.'
+                echo 'Task: Deploy the application to a staging server.'
                 echo 'Tool: AWS EC2'
             }
         }
@@ -79,7 +63,7 @@ pipeline {
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Stage 6: Integration Tests on Staging'
-                echo 'Task: Run integration tests on staging.'
+                echo 'Task: Run integration tests in the staging environment.'
                 echo 'Tool: Postman/Newman'
             }
         }
@@ -87,7 +71,7 @@ pipeline {
         stage('Deploy to Production') {
             steps {
                 echo 'Stage 7: Deploy to Production'
-                echo 'Task: Deploy application to production server.'
+                echo 'Task: Deploy the application to a production server.'
                 echo 'Tool: AWS EC2'
             }
         }
