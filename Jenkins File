@@ -28,7 +28,7 @@ pipeline {
 
                     "C:\\Users\\colla\\sonar-scanner-cli-8.0.1.6346-windows-x64\\sonar-scanner-8.0.1.6346-windows-x64\\bin\\sonar-scanner.bat" ^
                     -Dsonar.projectKey=RaiZed1031_8.2CDevSecOps ^
-                    -Dsonar.organization=RaiZed1031 ^
+                    -Dsonar.organization=raized1031 ^
                     -Dsonar.host.url=https://sonarcloud.io ^
                     -Dsonar.token=%SONAR_TOKEN%
                     """
