@@ -44,7 +44,7 @@ The code explicitly looks for credentials to that service.
 
 ### Cleanup
 To bulk delete the current list of TODO items from the DB run:
-```bash
+```bash.
 npm run cleanup
 ```
 
