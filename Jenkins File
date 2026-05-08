@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Stage 1: Build'
-                echo 'Task: Build the code by compiling and packaging the application.'
+                echo 'Task: Build the code using Maven.'
                 echo 'Tool: Maven'
             }
         }
@@ -13,15 +13,32 @@ pipeline {
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Stage 2: Unit and Integration Tests'
-                echo 'Task: Run unit tests and integration tests to check the application.'
+                echo 'Task: Run unit and integration tests.'
                 echo 'Tool: JUnit'
+            }
+            post {
+                always {
+                    emailext(
+                        subject: "Test Stage ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+                        Test stage completed.
+
+                        Status: ${currentBuild.currentResult}
+                        Job: ${env.JOB_NAME}
+                        Build Number: ${env.BUILD_NUMBER}
+                        Build URL: ${env.BUILD_URL}
+                        """,
+                        to: 'colladorailey@gmail.com',
+                        attachLog: true
+                    )
+                }
             }
         }
 
         stage('Code Analysis') {
             steps {
                 echo 'Stage 3: Code Analysis'
-                echo 'Task: Analyse code quality and check industry standards.'
+                echo 'Task: Analyse code quality.'
                 echo 'Tool: SonarQube'
             }
         }
@@ -29,15 +46,32 @@ pipeline {
         stage('Security Scan') {
             steps {
                 echo 'Stage 4: Security Scan'
-                echo 'Task: Scan the code to identify vulnerabilities.'
+                echo 'Task: Scan the code for vulnerabilities.'
                 echo 'Tool: OWASP Dependency-Check'
+            }
+            post {
+                always {
+                    emailext(
+                        subject: "Security Scan ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                        body: """
+                        Security scan stage completed.
+
+                        Status: ${currentBuild.currentResult}
+                        Job: ${env.JOB_NAME}
+                        Build Number: ${env.BUILD_NUMBER}
+                        Build URL: ${env.BUILD_URL}
+                        """,
+                        to: 'colladorailey@gmail.com',
+                        attachLog: true
+                    )
+                }
             }
         }
 
         stage('Deploy to Staging') {
             steps {
                 echo 'Stage 5: Deploy to Staging'
-                echo 'Task: Deploy the application to a staging server.'
+                echo 'Task: Deploy application to staging server.'
                 echo 'Tool: AWS EC2'
             }
         }
@@ -45,7 +79,7 @@ pipeline {
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Stage 6: Integration Tests on Staging'
-                echo 'Task: Run integration tests in the staging environment.'
+                echo 'Task: Run integration tests on staging.'
                 echo 'Tool: Postman/Newman'
             }
         }
@@ -53,7 +87,7 @@ pipeline {
         stage('Deploy to Production') {
             steps {
                 echo 'Stage 7: Deploy to Production'
-                echo 'Task: Deploy the application to the production server.'
+                echo 'Task: Deploy application to production server.'
                 echo 'Tool: AWS EC2'
             }
         }
